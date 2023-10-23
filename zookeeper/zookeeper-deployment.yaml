@@ -1,0 +1,48 @@
+# zookeeper-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: zookeeper
+spec:
+  replicas: 1 # Adjust the number of replicas as needed
+  selector:
+    matchLabels:
+      app: zookeeper
+  template:
+    metadata:
+      labels:
+        app: zookeeper
+    spec:
+      containers:
+        - name: zookeeper
+          image: docker.io/imageimpressario/zookeeper-jmx-exporter
+          ports:
+            - containerPort: 2181
+              name: client
+            - containerPort: 2200
+              name: jmx
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: zookeeper
+spec:
+  selector:
+    app: zookeeper
+  ports:
+    - name: client
+      port: 2181
+      targetPort: 2181
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: zookeeper-jmx
+spec:
+  selector:
+    app: zookeeper
+  ports:
+    - name: jmx
+      port: 2200
+      targetPort: 2200
+---

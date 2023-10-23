@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mirrormaker-config
+data:
+  producer.properties: |
+    bootstrap.servers=kafka.stream:9092
+    acks=1
+
+  consumer.properties: |
+    bootstrap.servers=kafka:9092
+    group.id=mirror-maker
+    key.deserializer=org.apache.kafka.common.serialization.StringDeserializer
+    value.deserializer=org.apache.kafka.common.serialization.ByteArrayDeserializer
+    enable.auto.commit=false
+    auto.offset.reset=earliest
+    topic.whitelist=test
+

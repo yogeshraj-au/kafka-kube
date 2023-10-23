@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: kafka
+spec:
+  serviceName: kafka
+  replicas: 1  # You can adjust the number of Kafka broker replicas
+  selector:
+    matchLabels:
+      app: kafka
+  template:
+    metadata:
+      labels:
+        app: kafka
+    spec:
+      containers:
+      - name: kafka
+        image: docker.io/imageimpressario/kafka-jmx-exporter # Use the appropriate Kafka image
+        ports:
+          - containerPort: 9092 # Kafka broker port
+            name: kafka
+          - containerPort: 2201
+            name: kafka-jmx
+        env:
+        - name: KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE
+          value: "true"  # You can configure other Kafka properties as needed
+        - name: KAFKA_ZOOKEEPER_CONNECT
+          value: "zookeeper:2181"
+        - name: KAFKA_LISTENERS
+          value: "PLAINTEXT://:9092"
+        - name: KAFKA_CFG_NODE_ID
+          value: "0"
+        - name: KAFKA_ADVERTISED_PORT
+          value: "9092"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kafka
+spec:
+  selector:
+    app: kafka
+  ports:
+  - name: kafka
+    port: 9092  # Port for the Kafka service
+    targetPort: 9092
+  clusterIP: None  # You can change this to LoadBalancer or NodePort based on your needs
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kafka-jmx
+spec:
+  selector:
+    app: kafka
+  ports:
+  - name: kafka-jmx
+    port: 2201
+    targetPort: 2201

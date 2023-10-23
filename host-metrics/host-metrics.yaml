@@ -1,0 +1,17 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: host-metrics
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: host-metrics
+  template:
+    metadata:
+      labels:
+        app: host-metrics
+    spec:
+      containers:
+      - name: metrics
+        image: docker.io/imageimpressario/host-metrics

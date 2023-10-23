@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mirrormaker-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mirrormaker
+  template:
+    metadata:
+      labels:
+        app: mirrormaker
+    spec:
+      containers:
+        - name: mirror-maker
+          image: docker.io/imageimpressario/mirrormaker-jmx-exporter
+          command:
+            - /bin/bash
+            - "-c"
+            - /opt/kafka_2.13-3.1.2/bin/kafka-mirror-maker.sh --consumer.config /files/consumer.properties --producer.config /files/producer.properties --whitelist test
+          ports:
+            - containerPort: 5060
+              name: mirrormaker-jmx
+          volumeMounts:
+            - name: mirror-config
+              mountPath: /files/
+              readOnly: true
+      volumes:
+        - name: mirror-config
+          configMap:
+            name: mirrormaker-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mirrormaker-jmx
+spec:
+  selector:
+    app: mirrormaker
+  ports:
+  - name: mirrormaker-jmx
+    port: 5060  # Port for the mirrormaker service
+    targetPort: 5060
